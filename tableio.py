@@ -1,10 +1,14 @@
 
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+
 def createTableIO(**kwargs):
     selector = {
-        "csv" : csvTableIO,
-        "google" : googleSheetTableIO,
-        "xls" : xlsTableIO
+        "csv": csvTableIO,
+        "google": googleSheetTableIO,
+        "xls": xlsTableIO
     }
     return selector[kwargs["settings"].get("type", "csv")](**kwargs)
 
@@ -25,10 +29,11 @@ class TableIO:
     def setValue(self, x, y, value):
         pass
 
+
 class csvTableIO(TableIO):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-    
+
     def setSheet(self, name):
         AssertionError("csv files don't contain tables")
 
@@ -37,14 +42,15 @@ class xlsTableIO(TableIO):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+
 class googleSheetTableIO(TableIO):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if "credentialPath" in self.settings.keys():
-            self.scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-            self.creds = ServiceAccountCredentials.from_json_keyfile_name(self.settings["credentialPath"], self.scope)
+            self.scope = ['https://spreadsheets.google.com/feeds',
+                          'https://www.googleapis.com/auth/drive']
+            self.creds = ServiceAccountCredentials.from_json_keyfile_name(
+                self.settings["credentialPath"], self.scope)
             self.client = gspread.authorize(self.creds)
             self.sheet = self.client.open(self.settings["spreadsheet"])
             self.setTable(self.settings["table"])
@@ -57,7 +63,7 @@ class googleSheetTableIO(TableIO):
         return self.table.cell(y, x).value
 
     def setValue(self, x, y, value):
-        self.table.update_cell(y,x, value)
+        self.table.update_cell(y, x, value)
 
     def setTable(self, tableName):
         self.tableName = tableName
