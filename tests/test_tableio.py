@@ -28,8 +28,8 @@ def test_createTableIOFactory():
     ]
     for test in tests:
         settings["type"] = test[0]
-        myTableIO = tio.createTableIO(settings)
-        testTableIO= test[1](settings)
+        myTableIO = tio.createTableIO(settings = settings)
+        testTableIO= test[1](settings = settings)
         assert type(myTableIO) ==  type(testTableIO),"Wrong tableIO type was created. Created TableIO was: {}".format(type(myTableIO))
 
 if __name__ == "__main__":
