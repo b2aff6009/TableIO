@@ -12,11 +12,7 @@ sys.path.insert(0, parent_dir)
 
 baseSettings = {
     "type": "csv",
-    "parse": False,
-    "parseDirection": "row",
-    "offsetX": 0,
-    "offsetY": 0,
-    "permission": ""
+    "permission": "rw"
 }
 
 

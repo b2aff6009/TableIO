@@ -58,11 +58,17 @@ class googleSheetTableIO(TableIO):
             AssertionError("Neither credentials are given nor a spreadsheet.")
 
     def getValue(self, x, y):
+        if "r" not in self.settings["permission"]:
+            raise PermissionError("Missing permisson to read.")
         if x < 1 or y < 1:
             raise ValueError("Coordinates must be positive (>0) integers.")
         return self.table.cell(y, x).value
 
     def setValue(self, x, y, value):
+        if "w" not in self.settings["permission"]:
+            raise PermissionError("Missing permisson to write.")
+        if x < 1 or y < 1:
+            raise ValueError("Coordinates must be positive (>0) integers.")
         self.table.update_cell(y, x, value)
 
     def setTable(self, tableName):

@@ -50,3 +50,31 @@ def write_data(baseSettings, tests):
         value = testTableIO.getValue(test[0]["x"], test[0]["y"])
         assert test[1] == value, "Expected value: {} got {}".format(
             value, test[1])
+
+def permission_test(baseSettings, tests):
+
+    for test in tests:
+        settings = dict(baseSettings)
+        testTableIO = tio.createTableIO(settings=settings)
+        for key, val in test[0].items():
+            settings[key] = val
+        testTableIO.setTable(settings["table"])
+        x = settings["x"]
+        y = settings["y"]
+
+        try:
+            value = testTableIO.setValue(x, y, test[1])
+            assert "w" in settings["permission"], "Set value without permission to write."
+        except PermissionError:
+            assert "w" not in settings["permission"], "Faild to getValue."
+
+        try:
+            value = testTableIO.getValue(x, y)
+            assert test[1] == value, "Expected value: {} got {}".format(
+                value, test[1])
+            assert "r" in settings["permission"], "Got value without permission to read."
+        except PermissionError:
+            assert "r" not in settings["permission"], "Got permission error."
+
+
+            

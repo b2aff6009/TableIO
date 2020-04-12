@@ -5,11 +5,7 @@ import testutils as tu
 
 baseSettings = {
     "type": "google",
-    "parse": False,
-    "parseDirection": "row",
-    "offsetX": 0,
-    "offsetY": 0,
-    "permission": "",
+    "permission": "rw",
     "table": "Test1",
     # GoogleCrawler Settings
     "credentialPath": "./dummy-credentials.json",
@@ -49,5 +45,16 @@ def test_write_data():
     tu.write_data(baseSettings, writeTests)
 
 
+permissionTests = [
+    [{"table": "Test2", "permission": "r", "x": 1, "y": 1}, "A"],
+    [{"table": "Test3", "permission": "w", "x": 1, "y": 1}, "k"],
+    [{"table": "Test2", "permission": "", "x": 1, "y": 1}, "x"],
+    [{"table": "Test3", "permission": "rw", "x": 1, "y": 1}, "j"]
+]
+
+@pytest.mark.skip(reason="Can't be tested without credentials")
+def test_permissions():
+    tu.permission_test(baseSettings, permissionTests)
+
 if __name__ == "__main__":
-    test_write_data()
+    test_permissions()
