@@ -22,11 +22,12 @@ readTests = [
     [{"x": 2, "y": 1}, "11"]
 ]
 
-
+@pytest.mark.skip(reason="Can't be tested without credentials")
 def test_read_data():
     tu.read_data(baseSettings, readTests)
 
 
+@pytest.mark.skip(reason="Can't be tested without credentials")
 def test_read_from_two_tables():
     addTests = [
         [{"table": "Test2", "x": 1, "y": 1}, "A"],
@@ -43,7 +44,7 @@ writeTests = [
     [{"table": "Test3", "x": 2, "y": 1}, "i"],
 ]
 
-
+@pytest.mark.skip(reason="Can't be tested without credentials")
 def test_write_data():
     tu.write_data(baseSettings, writeTests)
 
