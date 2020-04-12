@@ -1,3 +1,5 @@
+![tests](https://github.com/b2aff6009/TableIO/workflows/tests/badge.svg?branch=master)
+
 # TableIO
 
 ## Settings
