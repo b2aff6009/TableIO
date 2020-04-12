@@ -20,6 +20,16 @@ class TableIO:
         self.sheet = kwargs.get("sheet", None)
         self.table = kwargs.get("table", None)
 
+    def permissionCheck(self, perm):
+        verb = {"r": "read", "w": "write"}
+        if perm not in self.settings["permission"]:
+            raise PermissionError("Missing permisson to {}.".format(verb[perm]))
+
+    def intCheck(self, *args):
+        for value in args:
+            if value < 1:
+                raise ValueError("Value must be positive (>0) integers.")
+
     def setTable(self, name):
         pass
 
@@ -29,6 +39,17 @@ class TableIO:
     def setValue(self, x, y, value):
         pass
 
+    def getCol(self, x, y, length):
+        pass
+
+    def getRow(self, x, y, length):
+        pass
+
+    def row(self, x, y, values):
+        pass
+
+    def col(self, x, y, values):
+        pass
 
 class csvTableIO(TableIO):
     def __init__(self, **kwargs):
@@ -57,20 +78,75 @@ class googleSheetTableIO(TableIO):
         elif self.table != None:
             AssertionError("Neither credentials are given nor a spreadsheet.")
 
+
     def getValue(self, x, y):
-        if "r" not in self.settings["permission"]:
-            raise PermissionError("Missing permisson to read.")
-        if x < 1 or y < 1:
-            raise ValueError("Coordinates must be positive (>0) integers.")
+        super().permissionCheck("r")
+        super().intCheck(x,y)
         return self.table.cell(y, x).value
 
+
     def setValue(self, x, y, value):
-        if "w" not in self.settings["permission"]:
-            raise PermissionError("Missing permisson to write.")
-        if x < 1 or y < 1:
-            raise ValueError("Coordinates must be positive (>0) integers.")
+        super().permissionCheck("w")
+        super().intCheck(x,y)
         self.table.update_cell(y, x, value)
+
 
     def setTable(self, tableName):
         self.tableName = tableName
         self.table = self.sheet.worksheet(self.tableName)
+
+
+    def getCol(self, x, y, length):
+        super().permissionCheck("r")
+        super().intCheck(x,y, length)
+
+        x = chr(ord('A')-1+x)
+        yend = y + length - 1
+        rangeStr = '{}{}:{}{}'.format(x,y,x,yend)
+        cell_list = self.table.range(rangeStr)
+
+        result = []
+        for cell in cell_list:
+            result.append(cell.value)
+        return result
+
+
+    def getRow(self, x, y, length):
+        super().permissionCheck("r")
+        super().intCheck(x,y, length)
+
+        xbegin = chr(ord('A')-1+x)
+        xend = chr(ord(xbegin) + length - 1)
+        rangeStr = '{}{}:{}{}'.format(xbegin,y,xend,y)
+        cell_list = self.table.range(rangeStr)
+
+        result = []
+        for cell in cell_list:
+            result.append(cell.value)
+        return result
+
+
+    def writeRange(self, rangeStr, values):
+        cell_list = self.table.range(rangeStr)
+
+        for i, val in enumerate(values):
+            cell_list[i].value = val
+        self.table.update_cells(cell_list)
+
+
+    def col(self, x, y, values):
+        super().permissionCheck("w")
+
+        x = chr(ord('A')-1+x)
+        yend = y + len(values)
+        rangeStr = '{}{}:{}{}'.format(x, y, x, yend)
+        self.writeRange(rangeStr, values)
+
+
+    def row(self, x, y, values):
+        super().permissionCheck("w")
+
+        x = chr(ord('A')-1+x)
+        xend = chr(ord(x)+len(values))
+        rangeStr = '{}{}:{}{}'.format(x,y,xend, y)
+        self.writeRange(rangeStr, values)

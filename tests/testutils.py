@@ -51,6 +51,94 @@ def write_data(baseSettings, tests):
         assert test[1] == value, "Expected value: {} got {}".format(
             value, test[1])
 
+
+def read_row(baseSettings, tests):
+    testTableIO = tio.createTableIO(settings=baseSettings)
+    for test in tests:
+        settings = dict(baseSettings)
+        for key, val in test[0].items():
+            settings[key] = val
+
+        x = settings["x"]
+        y = settings["y"]
+        cnt = settings["len"]
+        try:
+            values = testTableIO.getRow(x,y,cnt)
+            assert values == test[1], "Unexpected values {} instead of {}".format(values, test[1])
+            assert cnt >= 1, "Didn't got a exception with cnt <= 1."
+        except ValueError:
+            assert cnt < 1, "Got Exception with cnt >= 1."
+
+
+def read_col(baseSettings, tests):
+    testTableIO = tio.createTableIO(settings=baseSettings)
+    for test in tests:
+        settings = dict(baseSettings)
+        for key, val in test[0].items():
+            settings[key] = val
+
+        x = settings["x"]
+        y = settings["y"]
+        cnt = settings["len"]
+        try:
+            values = testTableIO.getCol(x,y,cnt)
+            assert values == test[1], "Unexpected values {} instead of {}".format(values, test[1])
+            assert cnt >= 1, "Didn't got a exception with cnt <= 1."
+        except ValueError:
+            assert cnt < 1, "Got Exception with cnt >= 1."
+
+def write_row(baseSettings, tests):
+    testTableIO = tio.createTableIO(settings=baseSettings)
+    for test in tests:
+        settings = dict(baseSettings)
+        for key, val in test[0].items():
+            settings[key] = val
+        testTableIO.setTable(settings["table"])
+
+        x = settings["x"]
+        y = settings["y"]
+
+        clean = [""] * (len(test[1])+1)
+        testTableIO.row(x, y, clean)
+        values = testTableIO.getRow(x, y, len(clean))
+        assert clean == values, "Unexpected value {} instead of {}".format(values, clean)
+
+        testTableIO.setValue(x+len(test[1]), y, test[1][0])
+        testTableIO.row(x, y, test[1])
+
+        value = testTableIO.getValue(x+len(test[1]), y)
+        assert test[1][0] == value, "Overwrote value behind range."
+
+        values = testTableIO.getRow(x, y, len(test[1]))
+        assert test[1] == values, "Unexpected value {} instead of {}".format(values, test[1])
+
+
+def write_col(baseSettings, tests):
+    testTableIO = tio.createTableIO(settings=baseSettings)
+    for test in tests:
+        settings = dict(baseSettings)
+        for key, val in test[0].items():
+            settings[key] = val
+        testTableIO.setTable(settings["table"])
+
+        x = settings["x"]
+        y = settings["y"]
+
+        clean = [""] * (len(test[1])+1)
+        testTableIO.col(x, y, clean)
+        values = testTableIO.getCol(x, y, len(clean))
+        assert clean == values, "Unexpected value {} instead of {}".format(values, clean)
+
+        testTableIO.setValue(x, y+len(test[1]), test[1][0])
+        testTableIO.col(x, y, test[1])
+
+        value = testTableIO.getValue(x, y + len(test[1]))
+        assert test[1][0] == value, "Overwrote value behind range."
+
+        values = testTableIO.getCol(x, y, len(test[1]))
+        assert test[1] == values, "Unexpected value {} instead of {}".format(values, test[1])
+
+
 def permission_test(baseSettings, tests):
 
     for test in tests:
