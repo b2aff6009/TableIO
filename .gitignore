@@ -3,3 +3,8 @@ __pycache__
 .vscode
 .pytest_cache
 dummy-credentials.json
+bin/*
+lib/*
+lib64
+share/*
+pyvenv.cfg
