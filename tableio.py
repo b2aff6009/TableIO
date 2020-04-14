@@ -51,12 +51,78 @@ class TableIO:
     def col(self, x, y, values):
         pass
 
+import csv
+from chardet import detect
 class csvTableIO(TableIO):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        path = self.settings["path"]
+        self.table = [] 
+        self.loadedLines = 0
+
+        if ("r" in self.settings["permission"]):
+            csvfile = open(path, mode = "r", encoding=self.get_encoding_type(path))
+            self.reader = csv.reader(csvfile, delimiter=self.settings["delimiter"])
+            #for row in self.reader:
+            #    print(row)
+
+        if ("w" in self.settings["permission"]):
+            csvfile = open(path, mode = "a", encoding=self.get_encoding_type(path))
+            self.writer = csv.writer(csvfile, delimiter=self.settings["delimiter"])
+
+
+    def get_encoding_type(self, file):
+        with open(file, 'rb+') as f:
+            rawdata = f.read()
+        return detect(rawdata)['encoding']
+
+    def loadLine(self):
+        self.loadedLines += 1
+        try:
+            line = next(self.reader)
+        except StopIteration:
+            line = []
+        self.table.append(line)
+        return line
+
 
     def setSheet(self, name):
         AssertionError("csv files don't contain tables")
+
+    def getValue(self, x, y):
+        super().permissionCheck("r")
+        super().intCheck(x,y)
+        while y >= self.loadedLines:
+            self.loadLine()
+        return self.table[y-1][x-1]
+
+
+    def setValue(self, x, y, value):
+        super().permissionCheck("w")
+        super().intCheck(x,y)
+
+    def getCol(self, x, y, length):
+        super().permissionCheck("r")
+        super().intCheck(x,y, length)
+        while y+length >= self.loadedLines:
+            self.loadLine()
+        lines = self.table[y-1:y-1+length]
+        return [line[x-1] for line in lines]
+
+    def getRow(self, x, y, length):
+        super().permissionCheck("r")
+        super().intCheck(x,y, length)
+        while y >= self.loadedLines:
+            self.loadLine()
+        return self.table[y-1][x-1:x-1+length]
+
+    def row(self, x, y, values):
+        super().permissionCheck("w")
+        super().intCheck(x,y)
+
+    def col(self, x, y, values):
+        super().permissionCheck("w")
+        super().intCheck(x,y)
 
 
 class xlsTableIO(TableIO):
