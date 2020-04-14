@@ -63,8 +63,6 @@ class csvTableIO(TableIO):
         if ("r" in self.settings["permission"]):
             csvfile = open(path, mode = "r", encoding=self.get_encoding_type(path))
             self.reader = csv.reader(csvfile, delimiter=self.settings["delimiter"])
-            #for row in self.reader:
-            #    print(row)
 
         if ("w" in self.settings["permission"]):
             csvfile = open(path, mode = "a", encoding=self.get_encoding_type(path))
