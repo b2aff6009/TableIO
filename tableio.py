@@ -156,6 +156,11 @@ class googleSheetTableIO(TableIO):
 
 
     def setTable(self, tableName):
+        try:
+            worksheet = self.sheet.worksheet(tableName)
+        except:
+            self.sheet.duplicate_sheet(0, insert_sheet_index=1, new_sheet_name=tableName)
+
         self.tableName = tableName
         self.table = self.sheet.worksheet(self.tableName)
 
