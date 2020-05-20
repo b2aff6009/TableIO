@@ -1,6 +1,5 @@
-
-
 import gspread
+from gspread.models import Cell
 from oauth2client.service_account import ServiceAccountCredentials
 
 
@@ -49,6 +48,10 @@ class TableIO:
         pass
 
     def col(self, x, y, values):
+        pass
+    
+    def data(self, x, y, values):
+        '''takes a list of lists as input and writes it from top left to bottom right (liniewise)'''
         pass
 
 import csv
@@ -219,3 +222,13 @@ class googleSheetTableIO(TableIO):
         xend = chr(ord(x)+len(values))
         rangeStr = '{}{}:{}{}'.format(x,y,xend, y)
         self.writeRange(rangeStr, values)
+
+
+    def data(self, x, y, values):
+        super().permissionCheck("w")
+
+        cells = []
+        for j, line in enumerate(values,y):
+            for i, val in enumerate(line, x):
+                cells.append(Cell(row=j, col=i, value=val))
+        self.table.update_cells(cells)
