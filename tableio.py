@@ -15,6 +15,7 @@ def createTableIO(**kwargs):
 class TableIO:
     def __init__(self, **kwargs):
         self.settings = kwargs["settings"]
+        self.debug = self.settings.get("debug",0)
         self.callback = kwargs.get("callback", None)
         self.sheet = kwargs.get("sheet", None)
         self.table = kwargs.get("table", None)
@@ -162,6 +163,8 @@ class googleSheetTableIO(TableIO):
         try:
             worksheet = self.sheet.worksheet(tableName)
         except:
+            if self.debug > 0:
+                print("TableIO: {} was not found.".format(tableName))
             self.sheet.duplicate_sheet(0, insert_sheet_index=1, new_sheet_name=tableName)
 
         self.tableName = tableName
