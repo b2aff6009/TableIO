@@ -96,7 +96,10 @@ class csvTableIO(TableIO):
         super().intCheck(x,y)
         while y >= self.loadedLines:
             self.loadLine()
-        return self.table[y-1][x-1]
+        line = self.table[y-1]
+        if len(line) <= x-1:
+            return ""
+        return line[x-1]
 
 
     def setValue(self, x, y, value):
@@ -142,6 +145,7 @@ class googleSheetTableIO(TableIO):
                 self.settings["credentialPath"], self.scope)
             self.client = gspread.authorize(self.creds)
             self.sheet = self.client.open(self.settings["spreadsheet"])
+            #self.allsheets = self.client.openall()
             self.setTable(self.settings["table"])
         elif self.table != None:
             AssertionError("Neither credentials are given nor a spreadsheet.")
