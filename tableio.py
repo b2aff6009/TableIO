@@ -45,6 +45,9 @@ class TableIO:
     def getRow(self, x, y, length):
         pass
 
+    def getData(self, x, y, xend, yend):
+        pass
+
     def row(self, x, y, values):
         pass
 
@@ -202,6 +205,24 @@ class googleSheetTableIO(TableIO):
         result = []
         for cell in cell_list:
             result.append(cell.value)
+        return result
+
+    def getData(self, x, y, xend, yend):
+        super().permissionCheck("r")
+        super().intCheck(x,y, xend, yend) 
+
+        xbegin = chr(ord('A')-1+x)
+        xendStr = chr(ord(xbegin) + xend- 1)
+        rangeStr = '{}{}:{}{}'.format(xbegin,y,xendStr,yend)
+        cell_list = self.table.range(rangeStr)
+
+        xdiff = xend - x
+        result = []
+        for i, cell in enumerate(cell_list):
+            if (i%(xdiff+1) == 0):
+                result.append([])
+            result[-1].append(cell.value)
+
         return result
 
 
