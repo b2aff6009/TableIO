@@ -141,6 +141,7 @@ class xlsTableIO(TableIO):
 class googleSheetTableIO(TableIO):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.cache = {}
         if "credentialPath" in self.settings.keys():
             self.scope = ['https://spreadsheets.google.com/feeds',
                           'https://www.googleapis.com/auth/drive']
@@ -157,6 +158,9 @@ class googleSheetTableIO(TableIO):
     def getValue(self, x, y):
         super().permissionCheck("r")
         super().intCheck(x,y)
+        if x  in self.cache.keys():
+            if y in self.cache[x].keys():
+                return self.cache[x][y]
         return self.table.cell(y, x).value
 
 
@@ -224,6 +228,18 @@ class googleSheetTableIO(TableIO):
             result[-1].append(cell.value)
 
         return result
+
+    def cacheArea(self, x, y, xend, yend, updateRate = 0):
+        data = self.getData(x,y, xend, yend)
+        for i, col in enumerate(data):
+            for j, celldata in enumerate(col):
+                if j+y not in self.cache.keys(): 
+                    self.cache[j+y]= {}
+                #if i+x not in self.cache.keys(): 
+                #    self.cache[i+x]= {}
+                self.cache[j+y][i+x] = celldata
+                #self.cache[i+x][j+y] = celldata
+
 
 
     def writeRange(self, rangeStr, values):
