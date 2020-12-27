@@ -176,7 +176,15 @@ class googleSheetTableIO(TableIO):
         except:
             if self.debug > 0:
                 print("TableIO: {} was not found.".format(tableName))
-            self.sheet.duplicate_sheet(0, insert_sheet_index=1, new_sheet_name=tableName)
+            template = self.settings.get("template", 0)
+            if template == 0:
+                self.sheet.duplicate_sheet(0, insert_sheet_index=1, new_sheet_name=tableName)
+            else:
+                sheets = self.sheet.worksheets()
+                for sheet in self.sheet.worksheets():
+                    if sheet.title == template:
+                        self.sheet.duplicate_sheet(sheet.id, insert_sheet_index=1, new_sheet_name=tableName)
+                        break
 
         self.tableName = tableName
         self.table = self.sheet.worksheet(self.tableName)
